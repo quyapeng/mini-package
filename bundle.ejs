@@ -29,15 +29,10 @@ foo();
   //   foo();
   // }
 })({
-  "./foo.js": function (require, module, exports) {
-    exports.foo = function () {
-      console.log("foo");
-    };
-  },
-  "./main.js": function (require, module, exports) {
-    const { foo } = require("./foo.js");
-
-    console.log("main");
-    foo();
-  },
+  <%= modules.forEach(key => { %>
+    " <%=  key %>": function (require, module, exports) {
+      <%-  modules[key] %> 
+    },
+    <%= }) %>
+  
 });

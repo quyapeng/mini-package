@@ -1,7 +1,13 @@
 {
   "dependencies": {
+    "@babel/parser": "^7.16.10",
+    "@babel/traverse": "^7.16.10",
     "babel-core": "^6.26.3",
     "babel-traverse": "^6.26.0",
-    "babylon": "^6.18.0"
+    "babylon": "^6.18.0",
+    "ejs": "^3.1.6"
+  },
+  "devDependencies": {
+    "babel-preset-env": "^1.7.0"
   }
 }
