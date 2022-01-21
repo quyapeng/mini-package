@@ -1,38 +1,29 @@
-function foo() {
-  console.log("foo");
-}
+(function ( ) {
+  function require(id) {
+    let module = { exports: {} };
 
-foo();
+    // TODO 如何通过 filename 找到对应的函数呢？
+    // key filename  -> fn
+    // 1. 需要通过 filename 找到对应的模块函数
+    const [fn,mapping] = modules[id];
 
-// 1.如何把 esm 转换为 cjs 的形式。==> babel-core中有一个方法：transformFromAst
-// 2.需要自己去写自己的require方法
+    function localRequire(filename){
+      const id = mapping[filename]
+      return require(id)
+    }
 
-// 自执行函数
-(function (modules) {
-  function require(filename) {
-    let module = {
-      exports: {},
-    };
-    //   1.需要通过filename找到对应的模块函数  如何？==》映射
-    // filename => fn()
-    const fn = modules[filename];
-    fn(require, modules, module.exports);
-    return modules.exports;
+    fn(localRequire, module, module.exports);
+
+    return module.exports;
   }
 
-  require("./main.js");
-
-  // function mainModule(require, module, exports) {
-  //   const { foo } = require("./foo.js");
-
-  //   console.log("main");
-  //   foo();
-  // }
+  require(1)
 })({
-  <%= modules.forEach(key => { %>
-    " <%=  key %>": function (require, module, exports) {
-      <%-  modules[key] %> 
-    },
-    <%= }) %>
-  
+  <% Object.keys(modules).forEach((key)=>{ %> 
+    <%= key %> : [function (require, module, exports) {
+      <%- modules[key][0] %> 
+    }, 
+    <%- JSON.stringify(modules[key][1]) %>
+    ],
+    <% }) %> 
 });
