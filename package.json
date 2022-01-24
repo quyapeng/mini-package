@@ -5,7 +5,8 @@
     "babel-core": "^6.26.3",
     "babel-traverse": "^6.26.0",
     "babylon": "^6.18.0",
-    "ejs": "^3.1.6"
+    "ejs": "^3.1.6",
+    "prettier": "^2.5.1"
   },
   "devDependencies": {
     "babel-preset-env": "^1.7.0"

@@ -1,4 +1,4 @@
-(function ( ) {
+(function (modules ) {
   function require(id) {
     let module = { exports: {} };
 
@@ -18,12 +18,16 @@
   }
 
   require(1)
-})({
-  <% Object.keys(modules).forEach((key)=>{ %> 
-    <%= key %> : [function (require, module, exports) {
-      <%- modules[key][0] %> 
-    }, 
-    <%- JSON.stringify(modules[key][1]) %>
-    ],
+})(
+
+  {
+    <% Object.keys(modules).forEach((key)=>{ %> 
+      <%= key %> : [function (require, module, exports) {
+        <%- modules[key][0] %> 
+      },
+        <%- JSON.stringify(modules[key][1]) %>
+      ],
     <% }) %> 
-});
+  }
+  
+);

@@ -3,8 +3,10 @@ const parser = require("@babel/parser");
 const traverse = require("babel-traverse").default;
 const path = require("path");
 const ejs = require("ejs");
+const prettier = require("prettier");
 let id = 1;
 const { transformFromAst } = require("babel-core");
+const { versions } = require("process");
 // 1.获取到文件的内容和关系
 function createAsset(filename) {
   // a.获取文件的内容
@@ -55,7 +57,7 @@ function createGraph(filename) {
 
       let child = createAsset(path.resolve(dirname, relativePath));
       asset.mapping[relativePath] = child.id;
-      console.log("asset", asset);
+      // console.log("asset", asset);
       queue.push(child);
     });
   }
@@ -89,12 +91,13 @@ function bundle(graph) {
   const context = ejs.render(bundleTemplate, {
     modules,
   });
-  console.log(context);
+
   function emitFile(context) {
     fs.writeFileSync("./example/dist/bundle.js", context);
   }
-
-  // emitFile(context);
+  let code = prettier.format(context, { parser: "babel" });
+  console.log("code", code);
+  emitFile(code);
 }
 
 bundle(graph);
