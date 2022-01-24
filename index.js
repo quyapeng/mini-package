@@ -4,14 +4,26 @@ const traverse = require("babel-traverse").default;
 const path = require("path");
 const ejs = require("ejs");
 const prettier = require("prettier");
-let id = 1;
+
 const { transformFromAst } = require("babel-core");
 const { versions } = require("process");
+
+let id = 1;
+let globalConfig = {};
 // 1.获取到文件的内容和关系
 function createAsset(filename) {
   // a.获取文件的内容
-  const source = fs.readFileSync(filename, "utf-8");
-  //   console.log(source);
+  let source = fs.readFileSync(filename, "utf-8");
+  // console.log("source", source);
+  // 此处处理文件不同类型
+  const loaders = globalConfig.module.rules;
+  // console.log("loaders", loaders);
+  loaders.forEach((loadersConfig) => {
+    const { test, use } = loadersConfig;
+    if (test.test(filename)) {
+      source = use(source);
+    }
+  });
   // b.如何获取文件依赖关系
   // 借助 ast 来解析，获取到依赖
   // yarn add babylon babel-traverse babel-core
@@ -43,8 +55,9 @@ function createAsset(filename) {
     mapping: {},
   };
 }
-function createGraph(filename) {
-  //
+function createGraph() {
+  // 获取文件内容的时候处理
+  const filename = globalConfig.entry;
   const dirname = path.dirname(filename);
   let mainAsset = createAsset(filename);
 
@@ -68,7 +81,7 @@ function createGraph(filename) {
 
 // console.log("mainjs", mainjs);
 // 2. 创建图
-const graph = createGraph("./example/main.js");
+// const graph = createGraph("./example/main.js");
 // console.log("graph", graph);
 // 3. 拼成最终的js
 
@@ -100,4 +113,23 @@ function bundle(graph) {
   emitFile(code);
 }
 
-bundle(graph);
+const mdLoader = function (source) {
+  // mdLoader 把 非js的代码 转换成  js 的代码
+  console.log("source", source);
+
+  return `export default 'this is doc'`;
+};
+const webpackConfig = {
+  entry: "./example/main.js",
+  module: {
+    rules: [{ test: /\.md$/, use: mdLoader }],
+  },
+};
+
+function webpack(config) {
+  globalConfig = config;
+  const graph = createGraph();
+  bundle(graph);
+}
+
+webpack(webpackConfig);
